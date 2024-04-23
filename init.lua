@@ -829,6 +829,8 @@ require('lazy').setup({
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
+    -- Gets fancy textobjects like functions
+    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -836,7 +838,18 @@ require('lazy').setup({
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [']quote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      local spec_treesitter = require('mini.ai').gen_spec.treesitter
+      require('mini.ai').setup {
+        n_lines = 500,
+        custom_textobjects = {
+          -- Disable the mini.ai override of `t` (tag) in favor of the built in one, because it's better for heex
+          t = false,
+          -- Comment
+          c = spec_treesitter({ a = '@comment.outer', i = '@comment.inner' }, {}),
+          -- Function
+          f = spec_treesitter({ a = '@function.outer', i = '@function.inner' }, { desc = 'function' }),
+        },
+      }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
